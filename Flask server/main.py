@@ -1,25 +1,19 @@
 from main import Flask, render_template,request, jsonify
 app = Flask(__name__,template_folder='')
 import gpt
-@app.route("/", methods=['GET','POST'])
-def main():
-
-
-   return render_template('main.html')
-
 @app.route("/image_gen",methods =['POST'])
 def getImageGen():
-   ImageGen = gpt.genImage(request.json['dream'],0.9)
+   ImageGen = gpt.genImage(request.json['dream'])
 
    return ImageGen
 
 def getText():
-   TextGen = gpt.getDreamSynopsis(request.json['dream'],0.9)
+   TextGen = gpt.getDreamSynopsis(request.json['dream'])
 
    return TextGen
 
 def getEmoji():
-   EmojiGen = gpt.getDreamEmoji(request.json['dream'],0.9)
+   EmojiGen = gpt.getDreamEmoji(request.json['dream'])
 
    return EmojiGen
 
