@@ -25,6 +25,7 @@ export default function SignInSide() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    //Http Request
     axios.post("http://localhost:8000/loginUser",{
         username: data.get('email'),
         password: data.get('password'),
@@ -35,8 +36,8 @@ export default function SignInSide() {
           setIsLoggedIn(true);
           setErrorMsg("");
           setErrorOpen(false);
-          setActivePage("UsernameScreen")
-          setCurrentUser(res.data)
+          setActivePage("UsernameScreen");
+          setCurrentUser(res.data);
         }
         else{
           console.log("failed Login put some kind of error here like with useState similar to old askquestion errors")

@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser'); // similar to cors this enables s
 const port = 8000;
 const mongoose = require('mongoose')
 const authRouter = require('./routes/auth_router.js');
+const mainRouter = require('./routes/main_router.js');
 
 
 var mongoDB = 'mongodb://127.0.0.1:27017/test';
@@ -20,7 +21,7 @@ app.use(express.urlencoded({ extended: false })); // not sure about this
 app.use(express.json());
 app.use(cookieParser());
 app.use(('/auth',authRouter))// for some reason double parenthesis is needed but i think that in some examples ive seen no double parenthesis
-
+app.use(('/journals',mainRouter));
 
 app.listen(port, ()=>{
     console.log(`Listening on port ${port}`);
