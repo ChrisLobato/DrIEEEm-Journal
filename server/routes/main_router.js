@@ -1,19 +1,22 @@
 const express = require("express")
+const axios = require('axios')
 const auth = require("../authUtility.js")
 let router = express.Router()
 const User = require("../models/user.js") //not sure if we need this one but imported for now
 const Journal = require("../models/journal.js")
 const Dream = require("../models/entry.js")
+const journal = require("../models/journal.js")
 
 
 //Get Requests
 router.get('/journals/:_user', auth.verify, async(req,res)=>{
     try{
-        let author = req.params.author
+        let author = req.params._user;
+        console.log(author);
         const journalsQuery = await Journal.find({username: author})
         .populate("dreams")
 
-        res.json(journalsQuery);
+        res.json(journalsQuery.reverse());
     }
     catch (error) {
         //We do this just incase there is some kind of error the server wont just die instantly
@@ -53,7 +56,12 @@ router.post('/journals', auth.verify,async(req,res)=>{
     journalAuthor.journals.push(newJournal);
     journalAuthor.save();
     await newJournal.save();
-    res.json({message: "success"})
+    await journalAuthor.populate("journals");
+    let listOfJournals = journalAuthor.journals;
+    await listOfJournals.forEach(journal => {
+         journal.populate("dreams");
+    }); 
+    res.json(listOfJournals.reverse());
 
 });
 

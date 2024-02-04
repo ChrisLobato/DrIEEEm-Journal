@@ -1,17 +1,20 @@
 import { AppContext } from "../AppContext";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Banner from "./Banner";
-import { Button, Grid, Typography, Box, Dialog, TextField } from "@mui/material";
+import { Button, Grid, Typography, Box, Dialog, TextField, Card } from "@mui/material";
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import AddIcon from '@mui/icons-material/Add';
 import axios from "axios";
+import OutlinedCard from "./JournalCard";
 axios.defaults.withCredentials = true;
 
 export default function HomePage() {
     const { setIsLoggedIn, setActivePage, currentUser, setCurrentUser } = useContext(AppContext);
+    
+    const [listOfJournals, setListOfJournals] = useState([]);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [language, setLanguage] = useState("");
@@ -30,19 +33,26 @@ const handleClickOpen = () => {
     setOpen(true);
   };
   
-function handleSubmit(){
-    let journalToAdd = {
-        username: currentUser,
-        title: title,
-        description: description,
-        language: language,
-    }
 
-    axios.post('http://localhost:8000/journals',journalToAdd)
-    .then(res => {
-        console.log(res);
+
+useEffect(()=>{
+    axios.get('http://localhost:8000/journals/' + currentUser.username)
+    .then(res =>{
+        setListOfJournals([...res.data])
+    });
+
+},[])
+
+function generateCards(){
+    return listOfJournals.map(journal =>{
+        return(
+            <OutlinedCard 
+                key = {journal._id + "journal"}
+                aJournal = {journal}
+            />
+        )
+
     })
-
 }
 
   const style = {
@@ -77,6 +87,10 @@ function handleSubmit(){
                         language: formJson.language,
                     }
                     axios.post('http://localhost:8000/journals',journalToAdd)
+                    .then((res) => {
+                        setListOfJournals([...res.data]);
+                    }
+                    )
     .then(res => {
         console.log(res);
     })
@@ -140,6 +154,7 @@ function handleSubmit(){
                 <Button onClick={handleClickOpen}>
                     <AddIcon/>
                 </Button>
+                {generateCards()}
                 <JournalModal/>
 
             </Grid>

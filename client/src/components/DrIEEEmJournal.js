@@ -29,6 +29,10 @@ export default function DrIEEEmJournal(){
                 return(
                     <HomePage/>
                 )
+            case "JournalPage":
+                return(
+                    <></>
+                )
             default:
                 return(
                     <SignInSide/>
