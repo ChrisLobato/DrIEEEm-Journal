@@ -70,7 +70,18 @@ router.post('/journals', auth.verify,async(req,res)=>{
 //Delete Requests might not have time to implement these 
 
 
-///Post Journal Entry 
+//Dream Interpretation
+router.post('/journals/Interpretation',auth.verify,async(req,res)=>{
+    try{
+        let journalText = req.body.text;
+        const response = await axios.post('http://localhost:7000/image_text', {dream: journalText} );
+        const dataFromFlask = response.data;
+        res.json({ success: true, data: dataFromFlask });
+  } catch (error) {
+    console.error('Error making request to Flask backend:', error.message);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
+  }
+});
 
 
 router.post('/journals/:_id', auth.verify,async(req,res)=>{
