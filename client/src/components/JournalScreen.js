@@ -61,7 +61,6 @@ export default function JournalScreen() {
     )
   }
 
-<<<<<<< Updated upstream
   const style = {
     position: 'absolute',
     top: '50%',
@@ -116,11 +115,7 @@ export default function JournalScreen() {
     );
   }
 
-  function handleLeftArrow(){
-    // setAdding(false)
-=======
-  
-  function handleRightArrow(){
+    function handleRightArrow(){
     if(currentIndex < dreamsToDisplay.length){
         setCurrentIndex(currentIndex+1);
     }
@@ -130,10 +125,6 @@ export default function JournalScreen() {
     if(currentIndex > 0){
         setCurrentIndex(currentIndex - 1);
     }
->>>>>>> Stashed changes
-  }
-  function handleRightArrow(){
-
   }
 
   function handleDreamInterpretation(){
@@ -277,15 +268,10 @@ export default function JournalScreen() {
           >Image Generator</Button>
           <Button variant="contained" onClick={handleDreamInterpretation} sx={{ backgroundColor: 'yellow', color: 'black' }}
           >Dream Interpretation</Button>
-<<<<<<< Updated upstream
           <BasicModal/>
           <ImageModal/>
-          <IconButton id="leftArrow" style={{ color: 'white', fontSize: '40px', marginRight: '10px' }}>
-=======
-
           <IconButton id="leftArrow" onClick={handleLeftArrow}
           style={{ color: 'white', fontSize: '40px', marginRight: '10px' }}>
->>>>>>> Stashed changes
             <ArrowBackIcon/>
           </IconButton>
 
