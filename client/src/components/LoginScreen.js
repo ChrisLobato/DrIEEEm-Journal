@@ -74,7 +74,12 @@ export default function SignInSide() {
     setActivePage("HomePage");
   }
   function handleSwitchToRegister(){
+    axios.post("http://localhost:8000/journals/" + "65bf10a62c68adcc8ae1c8f1",{
+      Text: "New Entry",
+      Hours: 2
+    })
     setActivePage("SignUp");
+
   }
 
   function handleContinueAsGuest(){
