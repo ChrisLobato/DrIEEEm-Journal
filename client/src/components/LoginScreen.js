@@ -74,13 +74,11 @@ export default function SignInSide() {
     setActivePage("HomePage");
   }
   function handleSwitchToRegister(){
-    axios.post("http://localhost:8000/journals/" + "65bf10a62c68adcc8ae1c8f1",{
-      Text: "New Entry",
-      Hours: 2
-    })
+    
     setActivePage("SignUp");
 
   }
+
 
   function handleContinueAsGuest(){
     setActivePage("UsernameScreen");
@@ -187,9 +185,7 @@ export default function SignInSide() {
                 </Link>
               </Grid>
               <Grid item xs>
-                  <Link component= "button" variant="body2" onClick={handleContinueAsGuest}>
-                    {"Login as a Guest"}
-                  </Link>
+                  
                 </Grid>
               <Grid item>
               <Link component= "button" variant="body2" onClick={handleSwitchToRegister}>
@@ -206,7 +202,7 @@ export default function SignInSide() {
           src={process.env.PUBLIC_URL + '/mountain.png'}
           alt="Mountain"
           style={{
-            width: '500px', // Set the desired width
+            width: '300px', // Set the desired width
             height: 'auto', // Maintain aspect ratio
             position: 'absolute', // Set the position to absolute
             bottom: '0', // Position it at the bottom

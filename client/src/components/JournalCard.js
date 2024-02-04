@@ -36,15 +36,21 @@ export default function OutlinedCard({aJournal}) {
     
   }
   
+  function formatDate(date){
+    let aDate = new Date(date);
+    let MonthMap = { 0:"Jan", 1:"Feb", 2:"Mar", 3: "Apr", 4:"May", 5:"Jun", 6:"Jul", 7: "Aug", 8:"Sep", 9:"Oct", 10: "Nov", 11: "Dec"};
+
+    return MonthMap[aDate.getMonth()] + " " + aDate.getDate() + ", " + aDate.getFullYear();
+  }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '30vh' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '41vh' }}>
       <Card variant="outlined" sx={{ width: 600, height: 200, borderColor: 'yellow', borderWidth: '4px', boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.3)' }}>
       <ThemeProvider theme={theme}>
     <React.Fragment>
       <CardContent sx={{ backgroundColor: '#2e3a83', color: 'white' }}>
         <Typography sx={{ fontSize: 14 }} color="white" gutterBottom>
-          {dateCreated}
+          {formatDate(dateCreated)}
         </Typography>
         <Typography variant="h3" component="div">
           {title}
