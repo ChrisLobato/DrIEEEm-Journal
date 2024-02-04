@@ -12,11 +12,13 @@ export function AppContextProvider(props){
     const [isLoggedIn,setIsLoggedIn] = useState(false);
     const [activePage, setActivePage] = useState("SignIn"); // SignIn, SignUp
     const [currentUser, setCurrentUser] = useState(null);
+    const [activeJournal, setActiveJournal] = useState(null);
     return(
         <AppContext.Provider value = {
             {isLoggedIn,setIsLoggedIn,
             activePage,setActivePage,
             currentUser,setCurrentUser,
+            activeJournal,setActiveJournal
             }}
             >
             {props.children}
