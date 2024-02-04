@@ -54,3 +54,30 @@ router.post('/journals',auth.verify, async(req,res)=>{
 //Delete Requests might not have time to implement these 
 
 
+///Post Journal Entry 
+
+const express = require("express")
+const Dream = require("../models/questions.js")
+
+
+router.get('/journals/:entry', auth.verify, async(req,res)=>{
+
+    let newJournalEntry = req.body;
+    const journalID = await User.findById(newJournalEntry.id);
+
+    const newEntry = new Dream({
+        Text: newJournalEntry.Text,
+        Date: newJournalEntry.Date,
+        Hours: newJournalEntry.Hours,
+        Location: newJournalEntry.Location,
+    });
+
+    journalID.Dream.push(newEntry); // dreams instead of journals look at journal.js
+    journalID.save();
+    await newEntry.save(); 
+    res.json({message: "success"})
+
+
+
+});
+
