@@ -8,7 +8,7 @@ import { Dialog } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AddIcon from '@mui/icons-material/Add';
+import Modal from '@mui/material/Modal';
 import { AppContext } from '../AppContext';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -29,6 +29,17 @@ export default function JournalScreen() {
   const [currentIndex,setCurrentIndex] = React.useState(0);
   const [dreamsToDisplay,setDreamsToDisplay] = React.useState([...dreams].reverse());
   const [currentText, setCurrentText] = React.useState("")
+  const [openModal, setModalOpen] = React.useState(false);
+  const [modalText,setModalText] = React.useState("")
+    const handleModalOpen = () => setModalOpen(true);
+    const handleModalClose = () => setModalOpen(false);
+
+
+  //
+  const [openModalImg, setModalImgOpen] = React.useState(false);
+  const [modalSrc,setModalSrc] = React.useState("")
+    const handleImgModalOpen = () => setModalImgOpen(true);
+    const handleImgModalClose = () => setModalImgOpen(false);
   // const [adding,setAdding] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = () => {
@@ -50,15 +61,86 @@ export default function JournalScreen() {
     )
   }
 
-  function handleAdd(){
-    setCurrentText("");
-    setCurrentIndex(0);
-    // setAdding(true);
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+  };
+  function BasicModal() {
+  
+    return (
+      <div>
+        <Modal
+          open={openModal}
+          onClose={handleModalClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Interpretation
+            </Typography>
+            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+              {modalText}
+            </Typography>
+          </Box>
+        </Modal>
+      </div>
+    );
   }
-  function handleArrow(){
-    // setAdding(false)
+  function ImageModal() {
+  
+    return (
+      <div>
+        <Modal
+          open={openModalImg}
+          onClose={handleImgModalClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              Image of Dream
+            </Typography>
+            <img src={modalSrc}></img>
+          </Box>
+        </Modal>
+      </div>
+    );
   }
 
+  function handleLeftArrow(){
+    // setAdding(false)
+  }
+  function handleRightArrow(){
+
+  }
+
+  function handleDreamInterpretation(){
+
+    axios.post("http://localhost:8000/journals/Interpretation",{text: dreamsToDisplay[currentIndex].Text})
+    .then( res =>{
+      console.log(res.data);
+      setModalText(res.data.data);
+      handleModalOpen();
+    })
+  }
+
+  function handleDreamImage(){
+
+    axios.post("http://localhost:8000/journals/Image",{text: dreamsToDisplay[currentIndex].Text})
+    .then( res =>{
+      console.log(res.data);
+      setModalSrc(res.data.data);
+      handleImgModalOpen();
+    })
+  }
   function DreamModal(){
     return (
         <>
@@ -177,11 +259,12 @@ export default function JournalScreen() {
             padding: '20px',
           }}
         >
-          <Button variant="contained" sx={{ backgroundColor: 'yellow', color: 'black' }}
+          <Button variant="contained" onClick={handleDreamImage} sx={{ backgroundColor: 'yellow', color: 'black' }}
           >Image Generator</Button>
-          <Button variant="contained" sx={{ backgroundColor: 'yellow', color: 'black' }}
+          <Button variant="contained" onClick={handleDreamInterpretation} sx={{ backgroundColor: 'yellow', color: 'black' }}
           >Dream Interpretation</Button>
-
+          <BasicModal/>
+          <ImageModal/>
           <IconButton id="leftArrow" style={{ color: 'white', fontSize: '40px', marginRight: '10px' }}>
             <ArrowBackIcon/>
           </IconButton>
@@ -193,6 +276,7 @@ export default function JournalScreen() {
           <Button variant="outlined" onClick={handleClickOpen} sx={{ color: 'white', borderColor: 'yellow' }}>
             Add
           </Button>
+          
         </Box>
       </div>
     </ThemeProvider>

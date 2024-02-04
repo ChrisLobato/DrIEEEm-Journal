@@ -1,4 +1,4 @@
-from main import Flask, render_template,request, jsonify
+from flask import Flask, render_template,request, jsonify
 app = Flask(__name__,template_folder='')
 import gpt
 @app.route("/image_gen",methods =['POST'])
@@ -9,6 +9,7 @@ def getImageGen():
 
 @app.route("/image_text",methods =['POST'])
 def getText():
+   print("Hello")
    TextGen = gpt.getDreamSynopsis(request.json['dream'])
 
    return TextGen

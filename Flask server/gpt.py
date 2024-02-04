@@ -1,11 +1,10 @@
 
 from openai import OpenAI
-GPT_APIKey = "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"
+GPT_APIKey = "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"
 
 client = OpenAI(api_key= GPT_APIKey) 
 
-dream = input("Write your dream")
-def genImage():
+def genImage(dream):
   #note that for this we use dall-e-2 but we can also use dall-e-3
     response = client.images.generate(
         model = "dall-e-3",
@@ -15,7 +14,7 @@ def genImage():
         n = 1
     )
     return response.data[0].url
-print(genImage()) 
+# print(genImage()) 
 
 def getDreamSynopsis(dream):
     response = client.chat.completions.create(
@@ -28,7 +27,7 @@ def getDreamSynopsis(dream):
         max_tokens = 100
     )
     return response.choices[0].message.content
-print(getDreamSynopsis(dream))
+# print(getDreamSynopsis(dream))
 
 def getDreamEmoji(dream):
     response = client.chat.completions.create(
@@ -41,4 +40,4 @@ def getDreamEmoji(dream):
         max_tokens = 100
     )
     return response.choices[0].message.content
-print(getDreamEmoji(dream))
+# print(getDreamEmoji(dream))
