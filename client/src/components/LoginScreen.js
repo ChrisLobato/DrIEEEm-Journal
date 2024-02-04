@@ -1,26 +1,44 @@
 import * as React from 'react';
+//import yourImage from 'C:\Users\조은아\Downloads\dreamSpider.jpg';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import axios from 'axios';
 import ErrorMsg from './ErrorMsg.js';
 import { AppContext } from '../AppContext.js';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 axios.defaults.withCredentials = true;
-// TODO remove, this demo shouldn't need to reset the theme.
+
+function Copyright(props) {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
+
 
 export default function SignInSide() {
   const {setActivePage,setIsLoggedIn,setCurrentUser} = React.useContext(AppContext);
   const [loginUsernameError,setLoginUsernameError] = React.useState("");
   const [errorMsg, setErrorMsg] = React.useState("");
   const [errorOpen, setErrorOpen] = React.useState()
-
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -49,94 +67,139 @@ export default function SignInSide() {
           setErrorOpen(true);
         }
       });
-  };
+    };
+    
 
-  function handleContinueAsGuest(){
-    setActivePage("UsernameScreen");
-  }
   function handleSwitchToRegister(){
     setActivePage("SignUp");
   }
 
   return (
-      <Grid container component="main" sx={{ height: '100vh' }}>
-        <ErrorMsg errorOpen={errorOpen} errorMsg={errorMsg} setErrorOpen={setErrorOpen}/>
+    //<ThemeProvider theme={defaultTheme}>
+    <Container component="main" sx={{
+    width: '100%',
+    height: '100vh', 
+    backgroundColor: '#2a3e83', 
+  }}>
         <CssBaseline />
-        <Grid
-          item
-          xs={false}
-          sm={4}
-          md={7}
+
+        <Box
           sx={{
-            backgroundImage: 'url(https://tenor.com/view/cat-dance-cat-dance-cat-dancing-hey-hey-you-you-gif-10281105765813690669.gif)',
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-            backgroundSize: '70% 100%',
-            backgroundPosition: 'center',
+            marginTop: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
           }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-          <Box
-            sx={{
-              my: 8,
-              mx: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-          >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5">
-              Sign in
-            </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address/Account Name"
-                name="email"
-                autoComplete="email"
-                autoFocus
-              />
-              {loginUsernameError? <p>{loginUsernameError}</p> :<></>}
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Sign In
-              </Button>
-              <Grid container>
+        ></Box>
+
+        <Box
+          sx={{
+            marginTop: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            color: 'white'
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: 'orange' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign in
+          </Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              //style={{color:'white'}}
+              InputProps={{style:{borderColor: 'white',color:'white'}}}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'white', 
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'white', 
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'white', 
+                },
+              }}
+              variant="outlined"
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              inputProps={{style:{color:'white'}}}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'white', 
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'white', 
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'white', 
+                },
+              }}
+              variant="outlined"
+            />
+            <FormControlLabel
+              control={<Checkbox value="remember" color="primary" />}
+              label="Remember me"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+            >
+              Sign In
+            </Button>
+            <Grid container>
               <Grid item xs>
-                  <Link component= "button" variant="body2" onClick={handleContinueAsGuest}>
-                    {"Login as a Guest"}
-                  </Link>
-                </Grid>
-                <Grid item>
-                  <Link component= "button" variant="body2" onClick={handleSwitchToRegister}>
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
+              </Grid>
+              <Grid item>
+              <Link component= "button" variant="body2" onClick={handleSwitchToRegister}>
                     {"Don't have an account? Sign Up"}
                   </Link>
-                </Grid>
               </Grid>
-            </Box>
+            </Grid>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+
+        <Copyright sx={{ mt: 8, mb: 4 }} />
+
+        <img
+          src={process.env.PUBLIC_URL + '/mountain.png'}
+          alt="Mountain"
+          style={{
+            width: '500px', // Set the desired width
+            height: 'auto', // Maintain aspect ratio
+            position: 'absolute', // Set the position to absolute
+            bottom: '0', // Position it at the bottom
+            left: '50%', // Center horizontally
+            transform: 'translateX(-50%)', // Adjust horizontal centering
+          }}
+          />
+
+      </Container>
+    //</ThemeProvider>
   );
 }
+
+
