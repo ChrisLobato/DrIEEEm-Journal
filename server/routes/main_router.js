@@ -2,7 +2,9 @@ const express = require("express")
 const auth = require("../authUtility.js")
 let router = express.Router()
 const User = require("../models/user.js") //not sure if we need this one but imported for now
-const Journal = require("../models/questions.js")
+const Journal = require("../models/journal.js")
+const Dream = require("../models/entry.js")
+
 
 //Get Requests
 router.get('/journals/:user', auth.verify, async(req,res)=>{
@@ -56,8 +58,6 @@ router.post('/journals',auth.verify, async(req,res)=>{
 
 ///Post Journal Entry 
 
-const express = require("express")
-const Dream = require("../models/questions.js")
 
 
 router.get('/journals/:entry', auth.verify, async(req,res)=>{
@@ -80,4 +80,7 @@ router.get('/journals/:entry', auth.verify, async(req,res)=>{
 
 
 });
+
+module.exports = router;
+
 

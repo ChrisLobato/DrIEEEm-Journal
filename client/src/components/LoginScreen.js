@@ -74,6 +74,10 @@ export default function SignInSide() {
     setActivePage("SignUp");
   }
 
+  function handleContinueAsGuest(){
+    setActivePage("UsernameScreen");
+  }
+
   return (
     //<ThemeProvider theme={defaultTheme}>
     <Container component="main" sx={{
@@ -132,6 +136,7 @@ export default function SignInSide() {
               }}
               variant="outlined"
             />
+            {loginUsernameError? <p>{loginUsernameError}</p> :<></>}
             <TextField
               margin="normal"
               required
@@ -173,6 +178,11 @@ export default function SignInSide() {
                   Forgot password?
                 </Link>
               </Grid>
+              <Grid item xs>
+                  <Link component= "button" variant="body2" onClick={handleContinueAsGuest}>
+                    {"Login as a Guest"}
+                  </Link>
+                </Grid>
               <Grid item>
               <Link component= "button" variant="body2" onClick={handleSwitchToRegister}>
                     {"Don't have an account? Sign Up"}
