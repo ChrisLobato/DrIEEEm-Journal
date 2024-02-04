@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -15,32 +16,46 @@ const bull = (
   </Box>
 );
 
+const theme = createTheme({
+  typography: {
+    fontFamily: 'Comic Sans MS, Comic Sans, cursive',
+  },
+});
+
 const card = (
-  <React.Fragment>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-        Date
-      </Typography>
-      <Typography variant="h5" component="div">
-        Journal Title
-      </Typography>
-      <Typography sx={{ mb: 1.5 }} color="text.secondary">
-        description
-      </Typography>
-      <Typography variant="body2">
-        language
-      </Typography>
-    </CardContent>
-    <CardActions>
-      <Button size="small">Read</Button>
-    </CardActions>
-  </React.Fragment>
+  <ThemeProvider theme={theme}>
+    <React.Fragment>
+      <CardContent sx={{ backgroundColor: '#2e3a83', color: 'white' }}>
+        <Typography sx={{ fontSize: 14 }} color="white" gutterBottom>
+          Date
+        </Typography>
+        <Typography variant="h3" component="div">
+          Journal Title
+        </Typography>
+        <Typography sx={{ mb: 1.5 }} color="white">
+          description
+        </Typography>
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ marginRight: 'auto' }}>
+            <Typography variant="body2" style={{ color: 'white' }}>
+              language
+            </Typography>
+          </div>
+          <CardActions>
+            <Button size="small" style={{ color: 'white' }}>Read</Button>
+          </CardActions>
+        </div>
+      </CardContent>
+    </React.Fragment>
+  </ThemeProvider>
 );
 
 export default function OutlinedCard() {
   return (
-    <Box sx={{ minWidth: 275 }}>
-      <Card variant="outlined">{card}</Card>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Card variant="outlined" sx={{ width: 600, height: 200, borderColor: 'yellow', borderWidth: '4px', boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.3)' }}>
+        {card}
+      </Card>
     </Box>
   );
 }
