@@ -7,11 +7,13 @@ def getImageGen():
 
    return ImageGen
 
+@app.route("/image_text",methods =['POST'])
 def getText():
    TextGen = gpt.getDreamSynopsis(request.json['dream'])
 
    return TextGen
 
+@app.route("/image_emoji",methods =['POST'])
 def getEmoji():
    EmojiGen = gpt.getDreamEmoji(request.json['dream'])
 
