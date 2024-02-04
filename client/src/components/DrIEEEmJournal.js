@@ -4,6 +4,7 @@ import SignUp from "./RegisterScreen";
 import UsernameScreen from "./UsernameScreen.js";
 import { AppContext } from '../AppContext.js';
 import axios from "axios";
+import HomePage from "./HomePage.js";
 
 axios.defaults.withCredentials = true;
 
@@ -23,6 +24,10 @@ export default function DrIEEEmJournal(){
             case "UsernameScreen":
                 return(
                     <UsernameScreen/>
+                )
+            case "HomePage":
+                return(
+                    <HomePage/>
                 )
             default:
                 return(
