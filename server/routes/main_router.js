@@ -73,31 +73,6 @@ router.post('/journals', auth.verify,async(req,res)=>{
 ///Post Journal Entry 
 
 
-
-router.get('/journals/:_id', auth.verify,async(req,res)=>{
-
-    let newJournalEntry = req.body;
-    const journalID = await User.findById(newJournalEntry._id);
-
-    const newEntry = new Dream({
-        Text: newJournalEntry.Text,
-        Date: newJournalEntry.Date,
-        Hours: newJournalEntry.Hours,
-        Location: newJournalEntry.Location,
-    });
-
-    journalID.Dream.push(newEntry); // dreams instead of journals look at journal.js
-    journalID.save();
-    await newEntry.save(); 
-    res.json({message: "success"})
-
-
-
-});
-
-///Post Journal Entry 
-
-
 router.post('/journals/:_id', auth.verify,async(req,res)=>{
     // console.log(req);
     let newJournalEntry = req.body;
@@ -111,8 +86,10 @@ router.post('/journals/:_id', auth.verify,async(req,res)=>{
 
     journalID.dreams.push(newEntry); // dreams instead of journals look at journal.js
     journalID.save();
+    await newEntry.save();
     await newEntry.save(); 
-    res.json({message: "success"})
+    await journalID.populate("dreams")
+    res.json(journalID.dreams);
 
 });
 
