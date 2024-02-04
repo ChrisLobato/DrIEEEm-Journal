@@ -7,7 +7,7 @@ const Dream = require("../models/entry.js")
 
 
 //Get Requests
-router.get('/journals/:user', auth.verify, async(req,res)=>{
+router.get('/journals/:_user', auth.verify, async(req,res)=>{
     try{
         let author = req.params.author
         const journalsQuery = await Journal.find({username: author})
@@ -24,7 +24,7 @@ router.get('/journals/:user', auth.verify, async(req,res)=>{
 
 
 //Post Requests
-router.post('/journals',auth.verify, async(req,res)=>{
+router.post('/journals', auth.verify,async(req,res)=>{
     //So I think the main things that need to be in the post req body are
     /* {
         username: 
@@ -66,10 +66,10 @@ router.post('/journals',auth.verify, async(req,res)=>{
 
 
 
-router.get('/journals/:entry', auth.verify, async(req,res)=>{
+router.get('/journals/:_id', auth.verify,async(req,res)=>{
 
     let newJournalEntry = req.body;
-    const journalID = await User.findById(newJournalEntry.id);
+    const journalID = await User.findById(newJournalEntry._id);
 
     const newEntry = new Dream({
         Text: newJournalEntry.Text,
@@ -90,24 +90,21 @@ router.get('/journals/:entry', auth.verify, async(req,res)=>{
 ///Post Journal Entry 
 
 
-router.get('/journals/:entry', auth.verify, async(req,res)=>{
-
+router.post('/journals/:_id', auth.verify,async(req,res)=>{
+    // console.log(req);
     let newJournalEntry = req.body;
-    const journalID = await User.findById(newJournalEntry.id);
-
+    
+    const journalID = await Journal.findById(req.params._id);
+    console.log(journalID);
     const newEntry = new Dream({
         Text: newJournalEntry.Text,
-        Date: newJournalEntry.Date,
         Hours: newJournalEntry.Hours,
-        Location: newJournalEntry.Location,
     });
 
-    journalID.Dream.push(newEntry); // dreams instead of journals look at journal.js
+    journalID.dreams.push(newEntry); // dreams instead of journals look at journal.js
     journalID.save();
     await newEntry.save(); 
     res.json({message: "success"})
-
-
 
 });
 
