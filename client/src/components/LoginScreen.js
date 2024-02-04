@@ -54,7 +54,7 @@ export default function SignInSide() {
           setIsLoggedIn(true);
           setErrorMsg("");
           setErrorOpen(false);
-          setActivePage("UsernameScreen");
+          setActivePage("HomePage");
           setCurrentUser(res.data);
         }
         else{
@@ -70,6 +70,9 @@ export default function SignInSide() {
     };
     
 
+  function handleContinueAsGuest(){
+    setActivePage("HomePage");
+  }
   function handleSwitchToRegister(){
     setActivePage("SignUp");
   }

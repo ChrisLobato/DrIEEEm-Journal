@@ -33,6 +33,12 @@ router.post('/journals',auth.verify, async(req,res)=>{
         description:
         }
     */
+        /* {
+        text: 
+        hoursslept:
+        journalId:
+        }
+    */
     let newJournalJson = req.body;
     const journalAuthor = await User.findOne({username: newJournalJson.username});
 
@@ -81,6 +87,28 @@ router.get('/journals/:entry', auth.verify, async(req,res)=>{
 
 });
 
+///Post Journal Entry 
+
+
+router.get('/journals/:entry', auth.verify, async(req,res)=>{
+
+    let newJournalEntry = req.body;
+    const journalID = await User.findById(newJournalEntry.id);
+
+    const newEntry = new Dream({
+        Text: newJournalEntry.Text,
+        Date: newJournalEntry.Date,
+        Hours: newJournalEntry.Hours,
+        Location: newJournalEntry.Location,
+    });
+
+    journalID.Dream.push(newEntry); // dreams instead of journals look at journal.js
+    journalID.save();
+    await newEntry.save(); 
+    res.json({message: "success"})
+
+
+
+});
+
 module.exports = router;
-
-
