@@ -1,12 +1,11 @@
 const mongoose = require('mongoose')
-const entry = mongoose.entry
+const Schema = mongoose.Schema
 
-const JournalEntry = new entry (
+const DreamSchema = new Schema (
     {
         Text: { type: String , required: true},
         Date: { type: Date , default: Date.now},
         Hours: {type: Number, default: 0},
-        Location : {type: Location, default: navigator.geolocation},
         //Feelings: { type: }
        // UpVotes: 
        // Comment: 
@@ -15,4 +14,4 @@ const JournalEntry = new entry (
     {timestamps: true},
 )
 
-module.exports = mongoose.model('Dream', JournalEntry);
+module.exports = mongoose.model('Dream', DreamSchema);
