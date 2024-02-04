@@ -33,7 +33,12 @@ export default function JournalScreen() {
   const [modalText,setModalText] = React.useState("")
     const handleModalOpen = () => setModalOpen(true);
     const handleModalClose = () => setModalOpen(false);
+  function formatDate(date){
+    let aDate = new Date(date);
+    let MonthMap = { 0:"Jan", 1:"Feb", 2:"Mar", 3: "Apr", 4:"May", 5:"Jun", 6:"Jul", 7: "Aug", 8:"Sep", 9:"Oct", 10: "Nov", 11: "Dec"};
 
+    return MonthMap[aDate.getMonth()] + " " + aDate.getDate() + ", " + aDate.getFullYear();
+  }
 
   //
   const [openModalImg, setModalImgOpen] = React.useState(false);
@@ -53,7 +58,7 @@ export default function JournalScreen() {
   function handleSubmit(someText){
     axios.post('http://localhost:8000/journals/'+ activeJournal._id,{Text: someText})
     .then( res =>{
-      setDreamsToDisplay([...res.data])
+      setDreamsToDisplay([...res.data].reverse())
       // setAdding(true);
       setActivePage('JournalPage');
     }
@@ -116,7 +121,7 @@ export default function JournalScreen() {
   }
 
     function handleRightArrow(){
-    if(currentIndex < dreamsToDisplay.length){
+    if(currentIndex < dreamsToDisplay.length-1){
         setCurrentIndex(currentIndex+1);
     }
   }
@@ -167,7 +172,7 @@ export default function JournalScreen() {
               },
             }}
           >
-            <DialogTitle>Create Journal</DialogTitle>
+            <DialogTitle>Create Dream Entry</DialogTitle>
             <DialogContent>
               <DialogContentText>
                 Enter the appropriate fields for the Dream
@@ -221,7 +226,7 @@ export default function JournalScreen() {
           }}
         >
           <Typography variant="h3" 
-          gutterBottom style={{ color: 'white' }}>{dateCreated}</Typography>
+          gutterBottom style={{ color: 'white' }}>{formatDate(dateCreated)}</Typography>
           <Typography variant="h5" 
           gutterBottom style={{ color: 'white' }}>{title}</Typography>
        
@@ -252,7 +257,7 @@ export default function JournalScreen() {
                 borderColor: 'white',
               },
             }}
-          > {dreamsToDisplay[currentIndex].Text} </Typography>
+          > {dreamsToDisplay.length ? dreamsToDisplay[currentIndex].Text : ""} </Typography>
 
         </Box>
         <DreamModal/>
