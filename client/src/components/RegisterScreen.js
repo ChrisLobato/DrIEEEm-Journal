@@ -47,9 +47,26 @@ export default function SignUp() {
     }
   
     return (
-        <Container component="main" maxWidth="xs">
+      <Container
+      component="main"
+      maxWidth="xs"
+      sx={{
+        width: '100%',
+        height: '100vh',
+        //backgroundImage: `url(${process.env.PUBLIC_URL}/backgrnd.png)`,
+       // backgroundSize: 'cover',
+        //backgroundPosition: 'center',
+        background: 'linear-gradient(45deg, #7b84e8 0%, #0714a8 100%)',
+      }}
+    >
+         
           <ErrorMsg errorOpen={errorOpen} errorMsg={errorMsg} setErrorOpen={setErrorOpen}/>
+          
           <CssBaseline />
+
+          
+
+
           <Box
             sx={{
               marginTop: 8,
@@ -61,7 +78,7 @@ export default function SignUp() {
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography component="h1" variant="h5">
+            <Typography component="h1" variant="h5" marginBottom={30}>
               Sign up
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
@@ -74,6 +91,26 @@ export default function SignUp() {
                     label="Username"
                     name="username"
                     autoComplete="username"
+                    
+                    //css part bellow
+                    InputProps={{style:{borderColor: 'white',color:'white'}}}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'white', 
+                  borderRadius: '20px',
+                  borderWidth: '2px', 
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'white', 
+                  
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'white', 
+                },
+              }}
+              variant="outlined"
+              
+
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -84,6 +121,24 @@ export default function SignUp() {
                     label="Email Address/Account Name"
                     name="email"
                     autoComplete="email"
+
+                    InputProps={{style:{borderColor: 'white',color:'white'}}}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'white', 
+                  borderRadius: '20px',
+                  borderWidth: '2px',
+              
+                  
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'white', 
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'white', 
+                },
+              }}
+              variant="outlined"
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -95,7 +150,26 @@ export default function SignUp() {
                     type="password"
                     id="password"
                     autoComplete="new-password"
-                  />
+
+                  //css part 
+                  InputProps={{style:{borderColor: 'white',color:'white'}}}
+              sx={{
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: 'white', 
+                  borderRadius: '20px',
+                  borderWidth: '2px',
+                 
+                },
+                '& .MuiOutlinedInput-input': {
+                  color: 'white', 
+                },
+                '& .MuiInputLabel-root': {
+                  color: 'white', 
+                },
+              }}
+              variant="outlined"
+
+              />
                 </Grid>
               </Grid>
               <Button
