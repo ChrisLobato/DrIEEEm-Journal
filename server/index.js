@@ -20,8 +20,8 @@ credentials: true}));
 app.use(express.urlencoded({ extended: false })); // not sure about this
 app.use(express.json());
 app.use(cookieParser());
-app.use(('/api/auth',authRoutes))// for some reason double parenthesis is needed but i think that in some examples ive seen no double parenthesis
-app.use(('/api/journal',journalRoutes));
+app.use('/api/auth',authRoutes)// for some reason double parenthesis is needed but i think that in some examples ive seen no double parenthesis
+app.use('/api/journal',journalRoutes);
 
 app.listen(port, ()=>{
     console.log(`Listening on port ${port}`);
