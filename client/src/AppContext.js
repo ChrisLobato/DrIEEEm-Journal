@@ -11,7 +11,7 @@ export function AppContextProvider(props){
 
     const [isLoggedIn,setIsLoggedIn] = useState(false);
     const [activePage, setActivePage] = useState("SignIn"); // SignIn, SignUp
-    const [currentUser, setCurrentUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null); //object w/ username and email fields
     const [activeJournal, setActiveJournal] = useState(null);
     return(
         <AppContext.Provider value = {
