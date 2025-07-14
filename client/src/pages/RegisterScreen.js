@@ -11,27 +11,28 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 
 import axios from "axios";
-import { AppContext } from '../AppContext';
-import ErrorMsg from './ErrorMsg';
+import ErrorMsg from '../components/ErrorMsg';
+import { useNavigate } from 'react-router-dom';
 axios.defaults.withCredentials = true;
 
 
 export default function SignUp() {
-  const {setActivePage} = React.useContext(AppContext)
   const [errorOpen, setErrorOpen] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState("");
+  const navigate = useNavigate();
 
     const handleSubmit = (event) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
-      axios.post("http://localhost:8000/registerUser",{
+      try{
+        axios.post("http://localhost:8000/api/auth/register",{
         username: data.get('username'),
         password: data.get('password'),
         email: data.get('email')
       }).then((res)=> {
         if(res.data.message === "success"){
           setErrorMsg("")
-          setActivePage("SignIn");
+          handleSwitchToLogin();
         }
       }).catch((err) =>{
         if(err.response.status === 400){
@@ -39,11 +40,17 @@ export default function SignUp() {
           setErrorOpen(true);
         }
       });
+      } catch (err) {
+      setErrorMsg("Server error. Try again.");
+    } finally {
+      // setloading
+    }
+      
 
     };
 
     function handleSwitchToLogin(){
-      setActivePage("SignIn");
+      navigate("/login");
     }
   
     return (
@@ -51,11 +58,11 @@ export default function SignUp() {
       component="main"
       maxWidth="xs"
       sx={{
-        width: '100%',
-        height: '100vh',
-        //backgroundImage: `url(${process.env.PUBLIC_URL}/backgrnd.png)`,
-       // backgroundSize: 'cover',
-        //backgroundPosition: 'center',
+        boxShadow: 3,
+        borderRadius: 2,
+        backgroundImage: `url(${process.env.PUBLIC_URL}/backgrnd.png)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         background: 'linear-gradient(45deg, #7b84e8 0%, #0714a8 100%)',
       }}
     >
@@ -78,10 +85,10 @@ export default function SignUp() {
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography component="h1" variant="h5" marginBottom={30}>
+            <Typography component="h1" variant="h5" >
               Sign up
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+            <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
