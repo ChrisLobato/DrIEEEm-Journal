@@ -19,16 +19,25 @@ exports.getUser = async (req, res) => {
 
 exports.postEntry = async (req, res) => {
     //deconstruct body
+    console.log("route hit");
     const { text } = req.body;
-    const { userId } = req.params;
-
+    const { userId } = req.params; // leaving it with generic name of userId since I'm not sure if i want username, email to be unique identifier outside of DB id not sure if that is unsafe
+    const user = await prisma.user.findUnique({ where: { email: userId }});
     await prisma.entry.create({
         data: {
             text: text,
-            userId: userId,
+            userId: user.id,
         }
     });
 
+    const updatedUser = await prisma.user.findUnique({
+        where: { id: user.id },
+        include: { entries: true }
+    });
+
     //might good to update it to return the user's entries after adding the new instance
-    res.json({message: "successfully added journal entry"});
+    res.json({
+        message: "successfully added journal entry",
+        entries: updatedUser.entries
+    });
 }
