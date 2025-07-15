@@ -54,7 +54,6 @@ exports.loginUser = async (req, res) => {
 
     res.cookie("token", token, {
         httpOnly: true,
-        expires: new Date(0),
         secure: true,
         sameSite: "none"
     }).status(200).json({email: user.email, username: user.username});
