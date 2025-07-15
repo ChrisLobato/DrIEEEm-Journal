@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useContext, useState } from 'react';
 import {
   AppBar,
   Toolbar,
   Typography,
-  IconButton,
   Box,
   Drawer,
   List,
@@ -16,30 +15,37 @@ import {
   DialogTitle,
   DialogContent,
   TextField,
-  DialogActions
+  DialogActions,
+  ListItemButton
 } from '@mui/material';
 
 
-import MenuIcon from '@mui/icons-material/Menu';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import dayjs from 'dayjs';
-
+import axios from 'axios';
+import { AppContext } from '../AppContext';
+axios.defaults.withCredentials = true;
 const drawerWidth = 240;
 
 export default function HomePage() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [modalOpen, setModalOpen] = useState(false);
   const [entryText, setEntryText] = useState('');
-
-  const toggleDrawer = () => setDrawerOpen(!drawerOpen);
+  const { currentUser } = useContext(AppContext)
 
   const handleNewEntry = () => setModalOpen(true);
   const handleModalClose = () => setModalOpen(false);
   const handleEntrySubmit = () => {
     // TODO: send `entryText` and `selectedDate` to backend
+    try{
+      axios.post("http://localhost:8000/api/journal/entry/" + currentUser.email,{
+        text: entryText,
+      }).then((res) => {console.log(res)});
+    }catch (err) {
+      console.log("problem sending request " + err)
+    }
     console.log(`Saving entry for ${selectedDate.format('YYYY-MM-DD')}:`, entryText);
     setModalOpen(false);
     setEntryText('');
@@ -50,11 +56,8 @@ export default function HomePage() {
       {/* Navbar */}
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={toggleDrawer}>
-            <MenuIcon />
-          </IconButton>
           <Typography variant="h6" noWrap>
-            DrIEEEm Journal Dashboard
+            DrIEEEm Journal
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Button color="inherit">Logout</Button>
@@ -65,17 +68,23 @@ export default function HomePage() {
       <Drawer variant="permanent" sx={{
         width: drawerWidth,
         [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
-      }} open={drawerOpen}>
+      }} open={true}>
         <Toolbar />
         <List>
-          <ListItem button>
-            <ListItemText primary="Planner" />
+          <ListItem >
+            <ListItemButton>
+              <ListItemText primary="Planner" />
+            </ListItemButton>
           </ListItem>
-          <ListItem button>
-            <ListItemText primary="Entries" />
+          <ListItem>
+            <ListItemButton>
+              <ListItemText primary="Entries" />
+            </ListItemButton>
           </ListItem>
-          <ListItem button>
-            <ListItemText primary="Stats" />
+          <ListItem>
+            <ListItemButton>
+              <ListItemText primary="Stats" />
+            </ListItemButton>
           </ListItem>
         </List>
       </Drawer>
@@ -84,11 +93,12 @@ export default function HomePage() {
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid size = {{xs: 12, sm:6}}>
             <Paper elevation={3} sx={{ p: 2 }}>
               <Typography variant="h6">Planner</Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateCalendar date={selectedDate} onChange={setSelectedDate} />
+                {/* Can add an MUI badge to a custom component for the calendar days*/}
+                <DateCalendar value= {selectedDate} onChange={setSelectedDate} />
               </LocalizationProvider>
               <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleNewEntry}>
                 + New Entry
@@ -96,7 +106,7 @@ export default function HomePage() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size = {{xs: 12, sm:6}}>
             <Paper elevation={3} sx={{ p: 2 }}>
               <Typography variant="h6">Recent Entries</Typography>
               {/* Replace with dynamic list */}

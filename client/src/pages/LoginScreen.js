@@ -24,7 +24,7 @@ export default function SignIn({ onLogin }) {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
-  const { setIsLoggedIn, setCurrentUser} = useContext(AppContext)
+  const { setCurrentUser } = useContext(AppContext)
   const navigate = useNavigate()
 
   const handleSubmit = async (event) => {
