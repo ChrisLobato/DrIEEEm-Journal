@@ -19,13 +19,13 @@ exports.getUser = async (req, res) => {
 
 exports.postEntry = async (req, res) => {
     //deconstruct body
-    console.log("route hit");
-    const { text } = req.body;
+    const { text, date } = req.body;
     const { userId } = req.params; // leaving it with generic name of userId since I'm not sure if i want username, email to be unique identifier outside of DB id not sure if that is unsafe
     const user = await prisma.user.findUnique({ where: { email: userId }});
     await prisma.entry.create({
         data: {
             text: text,
+            createdAt: date,
             userId: user.id,
         }
     });
@@ -40,4 +40,25 @@ exports.postEntry = async (req, res) => {
         message: "successfully added journal entry",
         entries: updatedUser.entries
     });
+}
+
+//function to get entries made by a user, requires email to be in req params
+exports.getEntries = async (req, res) => {
+    const { email } = req.params;
+    const user = await prisma.user.findUnique({
+        where: { email },
+        include: {entries : true}
+    });
+
+    res.json({ userEntries : user.entries});
+}
+
+exports.updateEntry = async (req, res) => {
+    const { text, createdAt } = req.body;
+    const { email } = req.params;
+    //TODO create the rest of the logic for retrieving an entry and updating the text field in PSQL
+    //Some considerations maybe can there be overlapping dates, if so how would we identify which entry to update
+    //for now we wil assume that we can only do one entry per day
+    //This may require ensuring users
+
 }
