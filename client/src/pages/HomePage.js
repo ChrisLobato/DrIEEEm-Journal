@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -33,7 +33,29 @@ export default function HomePage() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [modalOpen, setModalOpen] = useState(false);
   const [entryText, setEntryText] = useState('');
-  const { currentUser } = useContext(AppContext)
+  const [entries, setEntries] = useState([]);
+  const { currentUser, setCurrentUser } = useContext(AppContext)
+
+  useEffect(()=>{
+    //possible alternative is to decouple into 2 useEffects where second one depends on currentUser being updated
+    const fetchData = async () =>{
+      const userLoggedIn = await axios.get("http://localhost:8000/api/auth/loggedIn")
+      const {email, username} = userLoggedIn.data;
+      // .then((res)=>{
+      //   const {email, username} = res.data;
+      //   setCurrentUser({email, username});
+      // });
+      setCurrentUser({email, username})
+      await axios.get("http://localhost:8000/api/journal/entries/" + email)
+      .then((res) =>{
+        const userEntries = res.data.userEntries;
+        setEntries(userEntries); 
+      });
+    }
+    fetchData();
+  },[])
+
+
 
   const handleNewEntry = () => setModalOpen(true);
   const handleModalClose = () => setModalOpen(false);
@@ -42,7 +64,7 @@ export default function HomePage() {
     try{
       axios.post("http://localhost:8000/api/journal/entry/" + currentUser.email,{
         text: entryText,
-      }).then((res) => {console.log(res)});
+      }).then((res) => {setEntries(res.data.entries)});
     }catch (err) {
       console.log("problem sending request " + err)
     }
@@ -50,6 +72,20 @@ export default function HomePage() {
     setModalOpen(false);
     setEntryText('');
   };
+
+  function generateListOfEntries(){
+    return(
+      entries.map((entry) =>{
+        const entryDate = new Date(entry.createdAt);
+        const formattedDate = entryDate.toDateString();
+        return(
+          <Typography key = {entryDate}>
+          {formattedDate}: {entry.text}
+        </Typography>
+        );
+      })
+    );
+  } 
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -111,8 +147,7 @@ export default function HomePage() {
               <Typography variant="h6">Recent Entries</Typography>
               {/* Replace with dynamic list */}
               <Box mt={2}>
-                <Typography variant="body2">July 1: "Had a great day learning React..."</Typography>
-                <Typography variant="body2">June 30: "Felt tired, but accomplished some goals."</Typography>
+                {generateListOfEntries()}
               </Box>
             </Paper>
           </Grid>
