@@ -22,23 +22,41 @@ exports.postEntry = async (req, res) => {
     const { text, date } = req.body;
     const { userId } = req.params; // leaving it with generic name of userId since I'm not sure if i want username, email to be unique identifier outside of DB id not sure if that is unsafe
     const user = await prisma.user.findUnique({ where: { email: userId }});
-    await prisma.entry.create({
+    //TODO search for entry of same day/Month/Year
+    //If exists update otherwise create a new one
+    const dateToCheck = new Date(date);
+    const startOfDay = new Date(dateToCheck.getFullYear(), dateToCheck.getMonth(), dateToCheck.getDate());
+    const endOfDay = new Date(dateToCheck.getFullYear(), dateToCheck.getMonth(), dateToCheck.getDate(), 23, 59, 59, 999);
+    const existingEntry = await prisma.entry.findFirst({
+        where: { 
+            userId: user.id,
+            createdAt: {
+                gte: startOfDay,
+                lt: endOfDay
+            } 
+        },
+    });
+
+    if (existingEntry){
+        //Update the entry rather than create a new entry
+        await prisma.entry.update({
+            where: { id: existingEntry.id},
+            data: { text }
+        })
+    }
+    else{
+        //Create a new entry since one does not already exist
+        await prisma.entry.create({
         data: {
             text: text,
             createdAt: date,
             userId: user.id,
         }
-    });
+        });
+    }
 
-    const updatedUser = await prisma.user.findUnique({
-        where: { id: user.id },
-        include: { entries: true }
-    });
-
-    //might good to update it to return the user's entries after adding the new instance
-    res.json({
-        message: "successfully added journal entry",
-        entries: updatedUser.entries
+    return res.json({
+        message: "successfully added journal entry"
     });
 }
 
@@ -63,7 +81,7 @@ exports.getEntriesByMonth = async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { email }  
     });
-
+    //fetch them in ascending order
     const entries = await prisma.entry.findMany({
         where: {
             userId: user.id,
@@ -71,6 +89,9 @@ exports.getEntriesByMonth = async (req, res) => {
                 gte: startDate,
                 lt: endDate
             }
+        },
+        orderBy: { 
+            createdAt: 'desc'
         },
         select: {
             id: true,
@@ -80,14 +101,4 @@ exports.getEntriesByMonth = async (req, res) => {
     });
 
     return res.json({userEntriesByMonth : entries});
-}
-
-exports.updateEntry = async (req, res) => {
-    const { text, createdAt } = req.body;
-    const { email } = req.params;
-    //TODO create the rest of the logic for retrieving an entry and updating the text field in PSQL
-    //Some considerations maybe can there be overlapping dates, if so how would we identify which entry to update
-    //for now we wil assume that we can only do one entry per day
-    //This may require ensuring users
-
 }
