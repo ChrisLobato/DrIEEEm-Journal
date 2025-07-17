@@ -18,14 +18,17 @@ import {
   DialogActions,
   ListItemButton
 } from '@mui/material';
-
+import Badge from '@mui/material/Badge';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import { DayCalendarSkeleton } from '@mui/x-date-pickers/DayCalendarSkeleton';
+
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { AppContext } from '../AppContext';
+import { PickersDay } from '@mui/x-date-pickers/PickersDay';
 axios.defaults.withCredentials = true;
 const drawerWidth = 240;
 
@@ -37,6 +40,7 @@ export default function HomePage() {
   const [entries, setEntries] = useState([]);
   const { currentUser, setCurrentUser } = useContext(AppContext);
   const [highlightedDays, setHighlightedDays] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(()=>{
     //possible alternative is to decouple into 2 useEffects where second one depends on currentUser being updated
@@ -48,7 +52,9 @@ export default function HomePage() {
       .then((res) =>{
         const userEntries = res.data.userEntries;
         setEntries(userEntries); 
+        fetchHighlightedDays(selectedDate, email);
       });
+      // fetchHighlightedDays(selectedDate);
     }
     fetchData();
   },[]);
@@ -85,41 +91,42 @@ export default function HomePage() {
     );
   } 
 
-  async function fetchEntriesByMonth(date, { signal }) {
+  async function fetchEntriesByMonth(date, email, { signal }) {
     //get the year and month selected
     const year = date.year();
     const month = date.month() + 1; //dayjs months 0 indexed
 
-    const entriesQuery = await axios.get("http://localhost:8000/api/journal/entry/" + currentUser.email,{
+    const entriesQuery = await axios.get("http://localhost:8000/api/journal/entriesbymonth/" + email,{
       params: {
         year: year,
         month: month 
       }
     });
 
-    return entriesQuery.data;
+    return entriesQuery.data.userEntriesByMonth;
   }
 
-  const fetchHighlightedDays = (date) =>{
+  const fetchHighlightedDays = (date, email) =>{
     //TODO add filtering process for mapping DateTime objects from resulting backend Query so calendar can render them
     //Add abort controller to avoid too many quick queries if user swaps between the months quickly
 
     const controller = new AbortController(); //to help stop too many quick requests since switching month will send a new request for journal entries
-    fetchEntriesByMonth(date, {signal: controller.signal})
+    fetchEntriesByMonth(date, email, {signal: controller.signal})
     .then((entries)=>{
       //TODO map entry createdAt DateTime -> dayjs
       const mappedEntries = entries.map((entry) =>{
-          dayjs(entry.createdAt).date(); //creates the dayjs object and then gets the day number
-          //TODO: Ensure that someone cant create an entry in a month that already has an entry
-          // just update in this scenario do not create a new one to avoid overlapping days for entries 
-          // Add setloading variable
-      })
-      .catch((err) =>{ 
-        if (err.name!== 'AbortError'){
-          throw error;
-        }
+        return dayjs(entry.createdAt).date() + 1; //creates the dayjs object and then gets the day number these remove a day likely because 0 indexed
       });
+      //TODO: Ensure that someone cant create an entry in a month that already has an entry
+      // just update in this scenario do not create a new one to avoid overlapping days for entries 
+      // Add setloading variable
       setHighlightedDays(mappedEntries);
+      setIsLoading(false);
+    })
+    .catch((err) =>{ 
+      if (err.name!== 'AbortError'){
+        throw err;
+      }
     });
 
 
@@ -128,11 +135,31 @@ export default function HomePage() {
 
   //TODO function to render days on the calendar with icons depending on if they have been filled out
   function ServerDay(props) {
-
+    const { highlightedDays = [], day, outsideCurrentMonth, ...other} = props;
     //check if current day is in the days that a entry was written
     
+    const isSelected = !props.outsideCurrentMonth && highlightedDays.indexOf(props.day.date()) >= 0;
 
     //return badge
+    return (
+      <Badge
+        key = {props.day.toString()}
+        overlap = "circular"
+        badgeContent = {isSelected ? '🌚' : undefined}
+      >
+        <PickersDay {...other} outsideCurrentMonth = {outsideCurrentMonth} day = {day}/>
+      </Badge>
+    )
+  }
+  
+  const handleMonthChange = (date) =>{
+    if(requestAbortController.current){
+      //abort a useless request
+      requestAbortController.current.abort();
+    }
+    setIsLoading(true);
+    setHighlightedDays([]);
+    fetchHighlightedDays(date,currentUser.email);
   }
 
   return (
@@ -182,7 +209,15 @@ export default function HomePage() {
               <Typography variant="h6">Planner</Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 {/* Can add an MUI badge to a custom component for the calendar days*/}
-                <DateCalendar value= {selectedDate} onChange={setSelectedDate} />
+                <DateCalendar 
+                  value= {selectedDate} 
+                  loading = {isLoading}
+                  onChange={setSelectedDate}
+                  onMonthChange={handleMonthChange}
+                  renderLoading={()=> <DayCalendarSkeleton/>} 
+                  slots={{day: ServerDay}}
+                  slotProps={{day: {highlightedDays}}}
+                />
               </LocalizationProvider>
               <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleNewEntry}>
                 + New Entry
