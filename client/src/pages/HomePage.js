@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -30,11 +30,13 @@ axios.defaults.withCredentials = true;
 const drawerWidth = 240;
 
 export default function HomePage() {
+  const requestAbortController = useRef(null);
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [modalOpen, setModalOpen] = useState(false);
   const [entryText, setEntryText] = useState('');
   const [entries, setEntries] = useState([]);
-  const { currentUser, setCurrentUser } = useContext(AppContext)
+  const { currentUser, setCurrentUser } = useContext(AppContext);
+  const [highlightedDays, setHighlightedDays] = useState([]);
 
   useEffect(()=>{
     //possible alternative is to decouple into 2 useEffects where second one depends on currentUser being updated
@@ -82,6 +84,48 @@ export default function HomePage() {
       })
     );
   } 
+
+  async function fetchEntriesByMonth(date, { signal }) {
+    //get the year and month selected
+    const year = date.year();
+    const month = date.month() + 1; //dayjs months 0 indexed
+
+    const entriesQuery = await axios.get("http://localhost:8000/api/journal/entry/" + currentUser.email,{
+      params: {
+        year: year,
+        month: month 
+      }
+    });
+
+    return entriesQuery.data;
+  }
+
+  const fetchHighlightedDays = (date) =>{
+    //TODO add filtering process for mapping DateTime objects from resulting backend Query so calendar can render them
+    //Add abort controller to avoid too many quick queries if user swaps between the months quickly
+
+    const controller = new AbortController(); //to help stop too many quick requests since switching month will send a new request for journal entries
+    fetchEntriesByMonth(date, {signal: controller.signal})
+    .then((entries)=>{
+      //TODO map entry createdAt DateTime -> dayjs
+      const mappedEntries = entries.map((entry) =>{
+          dayjs(entry.createdAt).date(); //creates the dayjs object and then gets the day number
+          //TODO: Ensure that someone cant create an entry in a month that already has an entry
+          // just update in this scenario do not create a new one to avoid overlapping days for entries 
+          // Add setloading variable
+      })
+      .catch((err) =>{ 
+        if (err.name!== 'AbortError'){
+          throw error;
+        }
+      });
+      setHighlightedDays(mappedEntries);
+    });
+
+
+    requestAbortController.current = controller
+  }
+
   //TODO function to render days on the calendar with icons depending on if they have been filled out
   function ServerDay(props) {
 
