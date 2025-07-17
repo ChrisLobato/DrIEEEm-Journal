@@ -16,9 +16,10 @@ import {
   DialogContent,
   TextField,
   DialogActions,
-  ListItemButton
+  ListItemButton,
 } from '@mui/material';
 import Badge from '@mui/material/Badge';
+import CreateIcon from '@mui/icons-material/Create';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -41,6 +42,7 @@ export default function HomePage() {
   const { currentUser, setCurrentUser } = useContext(AppContext);
   const [highlightedDays, setHighlightedDays] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); //TODO add for some conditional rendering of modal
 
   useEffect(()=>{
     //possible alternative is to decouple into 2 useEffects where second one depends on currentUser being updated
@@ -48,32 +50,47 @@ export default function HomePage() {
       const userLoggedIn = await axios.get("http://localhost:8000/api/auth/loggedIn")
       const {email, username} = userLoggedIn.data;
       setCurrentUser({email, username})
-      await axios.get("http://localhost:8000/api/journal/entries/" + email)
-      .then((res) =>{
-        const userEntries = res.data.userEntries;
-        setEntries(userEntries); 
-        fetchHighlightedDays(selectedDate, email);
-      });
-      // fetchHighlightedDays(selectedDate);
+      fetchHighlightedDays(selectedDate,email);
     }
     fetchData();
   },[]);
 
 
 
-  const handleNewEntry = () => setModalOpen(true);
-  const handleModalClose = () => setModalOpen(false);
+  const handleNewEntry = () => {
+    //triggered when someone clicks the new Entry button
+    //TODO input old text in there if there is text
+    const selectedEntry = entries.find((entry) =>{
+      const formattedDate = dayjs(entry.createdAt);
+      //use dayjs.isSame() to compare?
+      if (formattedDate.date() === selectedDate.date()){
+        return entry
+      }
+      return null;
+    });
+    if (selectedEntry)
+      setEntryText(selectedEntry.text);
+      setIsEditing(true);
+      setModalOpen(true);
+  }
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setIsEditing(false);
+    setEntryText("");
+  };
   const handleEntrySubmit = () => {
     // TODO: send `entryText` and `selectedDate` to backend
     try{
       axios.post("http://localhost:8000/api/journal/entry/" + currentUser.email,{
         text: entryText,
-      }).then((res) => {setEntries(res.data.entries)});
+        date: selectedDate.$d
+      }).then((res) => {fetchHighlightedDays(selectedDate,currentUser.email)});
     }catch (err) {
-      console.log("problem sending request " + err)
+      // console.log("problem sending request " + err)
     }
-    console.log(`Saving entry for ${selectedDate.format('YYYY-MM-DD')}:`, entryText);
+    // console.log(`Saving entry for ${selectedDate.format('YYYY-MM-DD')}:`, entryText);
     setModalOpen(false);
+    setIsEditing(false);
     setEntryText('');
   };
   //function to crudely generate a list of typography components that display the most recent entries
@@ -107,19 +124,16 @@ export default function HomePage() {
   }
 
   const fetchHighlightedDays = (date, email) =>{
-    //TODO add filtering process for mapping DateTime objects from resulting backend Query so calendar can render them
-    //Add abort controller to avoid too many quick queries if user swaps between the months quickly
+    //TODO Add abort controller to avoid too many quick queries if user swaps between the months quickly
 
     const controller = new AbortController(); //to help stop too many quick requests since switching month will send a new request for journal entries
     fetchEntriesByMonth(date, email, {signal: controller.signal})
     .then((entries)=>{
-      //TODO map entry createdAt DateTime -> dayjs
+
       const mappedEntries = entries.map((entry) =>{
-        return dayjs(entry.createdAt).date() + 1; //creates the dayjs object and then gets the day number these remove a day likely because 0 indexed
+        return dayjs(entry.createdAt).date(); //creates the dayjs object and then gets the day number these remove a day likely because 0 indexed
       });
-      //TODO: Ensure that someone cant create an entry in a month that already has an entry
-      // just update in this scenario do not create a new one to avoid overlapping days for entries 
-      // Add setloading variable
+      setEntries(entries);
       setHighlightedDays(mappedEntries);
       setIsLoading(false);
     })
@@ -136,8 +150,8 @@ export default function HomePage() {
   //TODO function to render days on the calendar with icons depending on if they have been filled out
   function ServerDay(props) {
     const { highlightedDays = [], day, outsideCurrentMonth, ...other} = props;
+
     //check if current day is in the days that a entry was written
-    
     const isSelected = !props.outsideCurrentMonth && highlightedDays.indexOf(props.day.date()) >= 0;
 
     //return badge
@@ -212,6 +226,7 @@ export default function HomePage() {
                 <DateCalendar 
                   value= {selectedDate} 
                   loading = {isLoading}
+                  shouldDisableDate={(day) => day.isAfter(dayjs())}
                   onChange={setSelectedDate}
                   onMonthChange={handleMonthChange}
                   renderLoading={()=> <DayCalendarSkeleton/>} 
@@ -220,7 +235,7 @@ export default function HomePage() {
                 />
               </LocalizationProvider>
               <Button variant="outlined" fullWidth sx={{ mt: 2 }} onClick={handleNewEntry}>
-                + New Entry
+                <CreateIcon/>
               </Button>
             </Paper>
           </Grid>
@@ -239,7 +254,7 @@ export default function HomePage() {
 
       {/* Modal for Entry */}
       <Dialog open={modalOpen} onClose={handleModalClose} fullWidth maxWidth="sm">
-        <DialogTitle>New Journal Entry</DialogTitle>
+        <DialogTitle>{isEditing ? "Update Journal Entry " : "New Journal Entry "}</DialogTitle>
         <DialogContent>
           <Typography variant="subtitle2" gutterBottom>
             Date: {selectedDate.format('MMMM D, YYYY')}
@@ -248,7 +263,7 @@ export default function HomePage() {
             multiline
             rows={6}
             fullWidth
-            placeholder="Write your thoughts..."
+            placeholder="Last night I dreamt that..."
             value={entryText}
             onChange={(e) => setEntryText(e.target.value)}
           />
