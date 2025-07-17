@@ -41,10 +41,6 @@ export default function HomePage() {
     const fetchData = async () =>{
       const userLoggedIn = await axios.get("http://localhost:8000/api/auth/loggedIn")
       const {email, username} = userLoggedIn.data;
-      // .then((res)=>{
-      //   const {email, username} = res.data;
-      //   setCurrentUser({email, username});
-      // });
       setCurrentUser({email, username})
       await axios.get("http://localhost:8000/api/journal/entries/" + email)
       .then((res) =>{
@@ -53,7 +49,7 @@ export default function HomePage() {
       });
     }
     fetchData();
-  },[])
+  },[]);
 
 
 
@@ -72,7 +68,7 @@ export default function HomePage() {
     setModalOpen(false);
     setEntryText('');
   };
-
+  //function to crudely generate a list of typography components that display the most recent entries
   function generateListOfEntries(){
     return(
       entries.map((entry) =>{
@@ -86,6 +82,14 @@ export default function HomePage() {
       })
     );
   } 
+  //TODO function to render days on the calendar with icons depending on if they have been filled out
+  function ServerDay(props) {
+
+    //check if current day is in the days that a entry was written
+    
+
+    //return badge
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
