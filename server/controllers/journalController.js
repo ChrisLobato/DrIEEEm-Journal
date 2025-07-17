@@ -53,6 +53,35 @@ exports.getEntries = async (req, res) => {
     res.json({ userEntries : user.entries});
 }
 
+exports.getEntriesByMonth = async (req, res) => {
+    const { email } = req.params;
+    const { year, month } = req.query;
+
+    const startDate = new Date(year, month - 1, 1); //assuming month wont be 0 indexed
+    const endDate = new Date(year, month, 0);
+
+    const user = await prisma.user.findUnique({
+      where: { email }  
+    });
+
+    const entries = await prisma.entry.findMany({
+        where: {
+            userId: user.id,
+            createdAt: {
+                gte: startDate,
+                lt: endDate
+            }
+        },
+        select: {
+            id: true,
+            createdAt: true,
+            text: true
+        }
+    });
+
+    return res.json({userEntriesByMonth : entries});
+}
+
 exports.updateEntry = async (req, res) => {
     const { text, createdAt } = req.body;
     const { email } = req.params;
