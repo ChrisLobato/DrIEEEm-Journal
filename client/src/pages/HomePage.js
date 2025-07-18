@@ -133,9 +133,9 @@ export default function HomePage() {
   }
 
   return (
-    <Box sx={{ }}>
+    <>
       {/* Main Content */}
-      <Box component="main" sx={{ flexGrow: 1, p: 3, alignItems: 'center' }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />
         <Grid container spacing={2}>
           <Box sx = {{minWidth: '40%', maxWidth: '45%', width:'100%'}}>
@@ -189,6 +189,6 @@ export default function HomePage() {
           <Button onClick={handleEntrySubmit} variant="contained">Save</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </>
   );
 }
