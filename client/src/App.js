@@ -5,6 +5,9 @@ import RegisterScreen from './pages/RegisterScreen';
 import LoginScreen from './pages/LoginScreen';
 import HomePage from './pages/HomePage';
 import DashboardLayout from './pages/DashboardLayout';
+import EntriesPage from './pages/EntriesPage';
+import StatsPage from './pages/StatsPage';
+import AccountSettings from './pages/AccountSettings';
 
 function App() {
   return (
@@ -16,9 +19,9 @@ function App() {
           <Route path = "/register" element = {<RegisterScreen/>} />
           <Route path = "/home" element = {<DashboardLayout/>}>
             <Route index element = {<HomePage/>}/>
-            <Route path = "entries" element = {<></>}/>
-            <Route path = "stats" element = {<></>}/>
-            <Route path = "settings" element = {<></>}/>
+            <Route path = "entries" element = {<EntriesPage/>}/>
+            <Route path = "stats" element = {<StatsPage/>}/>
+            <Route path = "settings" element = {<AccountSettings/>}/>
           </Route>
         </Routes>
       </Router>

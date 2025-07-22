@@ -64,11 +64,25 @@ exports.postEntry = async (req, res) => {
 exports.getEntries = async (req, res) => {
     const { email } = req.params;
     const user = await prisma.user.findUnique({
-        where: { email },
-        include: {entries : true}
+        where: { email }
     });
 
-    res.json({ userEntries : user.entries});
+    //fetch all entries in ascending order
+    const entries = await prisma.entry.findMany({
+        where:{
+            userId: user.id,
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+        select:{
+            id:true,
+            createdAt: true,
+            text:true
+        }
+    })
+
+    res.json({ userEntries : entries});
 }
 
 exports.getEntriesByMonth = async (req, res) => {
