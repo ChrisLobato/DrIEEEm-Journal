@@ -26,6 +26,7 @@ export default function HomePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [entryText, setEntryText] = useState('');
   const [entries, setEntries] = useState([]);
+  const [recentEntries, setRecentEntries] = useState([]);
   const { currentUser, setCurrentUser } = useContext(AppContext);
   const [highlightedDays, setHighlightedDays] = useState([]);
   const [isEditing, setIsEditing] = useState(false); //TODO add for some conditional rendering of modal
@@ -35,8 +36,9 @@ export default function HomePage() {
     const fetchData = async () =>{
       const userLoggedIn = await axios.get("http://localhost:8000/api/auth/loggedIn")
       const {email, username} = userLoggedIn.data;
-      setCurrentUser({email, username})
-      fetchHighlightedDays(selectedDate,email);
+      setCurrentUser({email, username});
+      fetchRecentEntries(email)
+      fetchHighlightedDays(selectedDate,email); //gets the entries that display on the calendar so we can view and edit
     }
     fetchData();
   },[]);
@@ -70,7 +72,10 @@ export default function HomePage() {
       axios.post("http://localhost:8000/api/journal/entry/" + currentUser.email,{
         text: entryText,
         date: selectedDate.$d
-      }).then((res) => {fetchHighlightedDays(selectedDate,currentUser.email)});
+      }).then((res) => {
+        fetchRecentEntries(currentUser.email);
+        fetchHighlightedDays(selectedDate,currentUser.email);
+      });
     }catch (err) {
       // console.log("problem sending request " + err)
     }
@@ -80,14 +85,14 @@ export default function HomePage() {
     setEntryText('');
   };
   //function to crudely generate a list of typography components that display the most recent entries
-  function generateListOfEntries(){
+  function generateListOfRecentEntries(){
     return(
-      entries.map((entry) =>{
+      recentEntries.map((entry) =>{
         const entryDate = new Date(entry.createdAt);
         const formattedDate = entryDate.toDateString();
         return(
           <Typography key = {entryDate}>
-          {formattedDate}: {entry.text}
+          {formattedDate}: {entry.text.slice(0,50) + "..."}
         </Typography>
         );
       })
@@ -107,6 +112,11 @@ export default function HomePage() {
     });
 
     return entriesQuery.data.userEntriesByMonth;
+  }
+  async function fetchRecentEntries(email) {
+    const recentEntriesQuery = await axios.get("http://localhost:8000/api/journal/entries/" + email);
+    const fiveMostRecentEntries = recentEntriesQuery.data.userEntries.slice(0,5); // will return a list in descending order of 5 most recent entries
+    setRecentEntries(fiveMostRecentEntries);
   }
 
   const fetchHighlightedDays = (date, email) =>{
@@ -139,7 +149,7 @@ export default function HomePage() {
         <Toolbar />
         <Grid container spacing={2}>
           <Box sx = {{minWidth: '40%', maxWidth: '45%', width:'100%'}}>
-            <Grid item xs={12} sm={6}>
+            <Grid >
               <CalendarPlanner
                 isLoading = {isLoading}
                 setIsLoading= {setIsLoading}
@@ -155,12 +165,12 @@ export default function HomePage() {
             </Grid>
           </Box>
           <Box sx = {{width: '45%'}}>
-            <Grid item xs={12} sm={6}>
+            <Grid >
               <Paper elevation={3} sx={{ p: 2, overflowY: 'auto'}}>
                 <Typography variant="h6">Recent Entries</Typography>
                 {/* Replace with dynamic list */}
                 <Box mt={2}>
-                  {generateListOfEntries()}
+                  {generateListOfRecentEntries()}
                 </Box>
               </Paper>
             </Grid>
