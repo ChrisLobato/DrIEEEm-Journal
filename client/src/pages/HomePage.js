@@ -31,6 +31,7 @@ export default function HomePage() {
   const [highlightedDays, setHighlightedDays] = useState([]);
   const [isEditing, setIsEditing] = useState(false); //TODO add for some conditional rendering of modal
   const [isLoading, setIsLoading] = useState(false);
+  
   useEffect(()=>{
     //possible alternative is to decouple into 2 useEffects where second one depends on currentUser being updated
     const fetchData = async () =>{
@@ -114,8 +115,16 @@ export default function HomePage() {
     return entriesQuery.data.userEntriesByMonth;
   }
   async function fetchRecentEntries(email) {
-    const recentEntriesQuery = await axios.get("http://localhost:8000/api/journal/entries/" + email);
-    const fiveMostRecentEntries = recentEntriesQuery.data.userEntries.slice(0,5); // will return a list in descending order of 5 most recent entries
+    const recentEntriesQuery = await axios.get("http://localhost:8000/api/journal/entries",{
+        params: {
+            email,
+            page:1,
+            limit:5,
+            search: " ",
+            sort: "desc"
+        }
+    });
+    const fiveMostRecentEntries = recentEntriesQuery.data.entries.slice(0,5); // will return a list in descending order of 5 most recent entries
     setRecentEntries(fiveMostRecentEntries);
   }
 

@@ -62,27 +62,45 @@ exports.postEntry = async (req, res) => {
 
 //function to get entries made by a user, requires email to be in req params
 exports.getEntries = async (req, res) => {
-    const { email } = req.params;
-    const user = await prisma.user.findUnique({
-        where: { email }
+    const {
+        email,
+        page = 1,
+        limit = 9,
+        search = '',
+        sort = 'desc',
+        startDate,
+        endDate
+    } = req.query;
+    //variable that dictates how many entries we want to skip
+    //depending on how we can display on a page and how many pages we got
+    const skip = (page - 1) * limit;
+    //use spread operator to create the object if search exists and if start date and end date exist
+    const filter = {
+        user: {email},
+        ...(search && {
+            OR: [
+                {text: {contains: search, mode: 'insensitive'}}
+            ]
+        }),
+        ...(startDate && endDate &&{
+            createdAt:{
+                gte: new Date(startDate),
+                lte: new Date(endDate)
+            }
+        }),
+    };
+
+    const entries = await prisma.entry.findMany({
+        where: filter,
+        orderBy: {
+            createdAt: sort
+        },
+        skip: Number(skip),
+        take: Number(limit)
     });
 
-    //fetch all entries in ascending order
-    const entries = await prisma.entry.findMany({
-        where:{
-            userId: user.id,
-        },
-        orderBy: {
-            createdAt: 'desc'
-        },
-        select:{
-            id:true,
-            createdAt: true,
-            text:true
-        }
-    })
-
-    res.json({ userEntries : entries});
+    const totalReturned = await prisma.entry.count({ where: filter });
+    res.json({ entries, totalReturned });
 }
 
 exports.getEntriesByMonth = async (req, res) => {

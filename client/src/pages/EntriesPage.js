@@ -3,12 +3,17 @@ import {
     Grid, 
     Card, 
     CardContent, 
-    CardMedia,
+    // CardMedia,
+    Pagination,
     CardHeader, 
     Toolbar,
     Typography,
     Button,
-    CardActionArea
+    CardActionArea,
+    InputLabel,
+    MenuItem,
+    Select,
+    FormControl
 } from "@mui/material"
 
 import Dialog from '@mui/material/Dialog';
@@ -23,6 +28,8 @@ import axios from "axios"
 import { useContext, useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { AppContext } from "../AppContext";
+import SearchBar from "../components/Searchbar";
+import CalendarPicker from "../components/CalendarPickerRange";
 axios.defaults.withCredentials = true;
 
 
@@ -32,6 +39,11 @@ export default function EntriesPage(){
     const [dialogText, setDialogText] = useState("");
     const [dialogTitle, setDialogTitle] = useState("");
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [totalEntries, setTotalEntries] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchText, setSearchText] = useState("");
+    const [sort,setSort] = useState("desc");
+    const [dateRange, setDateRange] = useState({start: null, end: null});
     const descriptionElementRef = useRef(null);
     
     useEffect(() => {
@@ -40,20 +52,58 @@ export default function EntriesPage(){
                 const userLoggedIn = await axios.get("http://localhost:8000/api/auth/loggedIn")
                 const {email, username} = userLoggedIn.data;
                 setCurrentUser({email,username});
-                await axios.get("http://localhost:8000/api/journal/entries/" + email)
+                await axios.get("http://localhost:8000/api/journal/entries",{
+                    params: {
+                        email,
+                        page:1,
+                        limit:9,
+                        sort: "desc"
+                    }
+                })
                 .then((res) =>{
-                    setEntries(res.data.userEntries);
+                    setTotalEntries(Number(res.data.totalReturned));
+                    setEntries(res.data.entries);
                 });
             }
             else{
-                await axios.get("http://localhost:8000/api/journal/entries/" + currentUser.email)
+                await axios.get("http://localhost:8000/api/journal/entries/",{
+                    params: {
+                        email: currentUser.email,
+                        page: 1,
+                        limit: 9,
+                        sort: "desc"
+                    }
+                })
                 .then((res) =>{
-                    setEntries(res.data.userEntries);
+                    setTotalEntries(Number(res.data.totalReturned));
+                    setEntries(res.data.entries);
                 });
             }
         }
         fetchData();
     },[]);
+
+    useEffect(() => {
+        //TODO new request to make once user moves to next page
+        async function fetchNewPage(){
+            await axios.get("http://localhost:8000/api/journal/entries/",{
+                    params: {
+                        email: currentUser.email,
+                        page: currentPage,
+                        limit: 9,
+                        search:searchText,
+                        sort: sort,
+                        startDate: dateRange.start,
+                        endDate: dateRange.end
+                    }
+                })
+                .then((res) =>{
+                    setTotalEntries(Number(res.data.totalReturned));//for page switching might not require updating total count cuz it might cause unneccessary rerender
+                    setEntries(res.data.entries);
+                });
+        }
+        fetchNewPage();
+    },[currentPage]);
 
     useEffect(()=>{
         if(dialogOpen){
@@ -64,15 +114,41 @@ export default function EntriesPage(){
         }
     }, [dialogOpen]);
 
+    const handleSearch = async () => {
+        //TODO insert axios request for getting entries based off the search text
+        await axios.get("http://localhost:8000/api/journal/entries/",{
+            params: {
+                email: currentUser.email,
+                page: 1,
+                limit: 9,
+                search:searchText,
+                sort: sort,
+                startDate: dateRange.start,
+                endDate: dateRange.end
+            }
+        })
+        .then((res) =>{
+            setCurrentPage(1);// reset us back to the first page
+            setTotalEntries(Number(res.data.totalReturned));
+            setEntries(res.data.entries);
+        });
+    }
+
+    const handlePageSwitch = (event,page) =>{
+        setCurrentPage(page);
+    }
 
     const handleClickOpen = (text,title) => () => {
         setDialogText(text);
         setDialogTitle(title)
         setDialogOpen(true);
-        // setScroll('paper');
     }
     const handleClose = () => {
         setDialogOpen(false);
+    }
+
+    const handleSortDropDown = (e) =>{
+        setSort(e.target.value);
     }
 
     function generateEntryCards(){
@@ -104,9 +180,25 @@ export default function EntriesPage(){
         <>
             <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                 <Toolbar/>
-                <Grid container spacing={4} columns={12}>
+                <SearchBar sx = {{p:15}} searchText ={searchText} setSearchText={setSearchText} handleSearch={handleSearch}/>
+                <FormControl>
+                    <InputLabel id = "sort-by-select-label">Sort by</InputLabel>
+                    <Select fullWidth
+                    labelId="sort-by-select-label"
+                    id="sortby-select"
+                    value={sort}
+                    label="Sort by"
+                    onChange={handleSortDropDown}
+                    >
+                    <MenuItem value={"desc"}>Oldest</MenuItem>
+                    <MenuItem value={"asc"}>Newest</MenuItem>
+                    </Select>
+                </FormControl>
+                <CalendarPicker start={dateRange.start} end = {dateRange.end} setDateRange={setDateRange}/>
+                <Grid sx = {{minHeight: 450}} container spacing={3} columns={12} alignItems={"flex-start"}>
                     {generateEntryCards()}
                 </Grid>
+                <Pagination count={Math.ceil(totalEntries / 9)} color="secondary" onChange={handlePageSwitch}/> 
             </Box>
             <>
                 <Dialog
