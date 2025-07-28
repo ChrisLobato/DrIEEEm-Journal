@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { format, differenceInDays, startOfWeek } = require('date-fns')
 //implement flask microservice in a later update
 // const auth = require("../middleware/auth");
 
@@ -8,7 +9,6 @@ exports.getUser = async (req, res) => {
     const { username } = req.params // params will be a user identifier
     const user = await prisma.user.findUnique({ where: { username }});
     if(!user){
-        console.log("User not found with username: " + username)
         return res.status(400).json({ErrorMsg : "User not found"});
     }
     return res.json(user);
@@ -133,4 +133,74 @@ exports.getEntriesByMonth = async (req, res) => {
     });
 
     return res.json({userEntriesByMonth : entries});
+}
+
+exports.getUserStats = async (req, res) => {
+    const { email } = req.params;
+    
+    const allUserEntries = await prisma.entry.findMany({
+        where:{
+            user: { email }
+        },
+        orderBy: { 
+            createdAt: 'asc'
+        }
+    });
+
+    //obtain the word count stats
+    const wordCountInitial = 0;
+    const wordCount = allUserEntries.reduce(
+        (accumulator, currentValue) =>{
+            const wordArray = currentValue.text.split(" ");
+            const curWordCount = wordArray.length;
+            return accumulator + curWordCount
+        }
+    , wordCountInitial);
+
+    //obtain streak stats
+    let curStreak = 1;
+    let longestStreak = 1;
+    for(i = 1; i < allUserEntries.length; i++){
+        //normalize date maybe just convert all dates before to avoid O(2n) format operations
+        const currentDate = format(new Date(allUserEntries[i].createdAt), 'yyyy-MM-dd');
+        const lastDate = format(new Date(allUserEntries[i-1].createdAt), 'yyyy-MM-dd');
+        const difference = differenceInDays(currentDate,lastDate);
+        if(difference === 1){
+            curStreak++;
+            longestStreak = Math.max(curStreak,longestStreak)
+        }
+        else if(difference === 0){
+            curStreak = 1
+        }
+    }
+    const lastDate = allUserEntries[allUserEntries.length-1].createdAt;
+    //TODO remove abs as no longer needed due to strict requirement now imposed on only writing posts on or before current dat 
+    if(Math.abs(differenceInDays(new Date(), lastDate)) > 1){
+        curStreak = 0; // in the case that the most recent date is not the same as today
+    }
+
+    //get Entries over time
+    const entriesByDate = {};
+    for(i = 0; i < allUserEntries.length; i++){
+        const weekOf = startOfWeek(allUserEntries[i].createdAt, { weekStartsOn: 1 });
+        const weekKey = format(weekOf, "yyyy-MM-dd");
+        if(entriesByDate.hasOwnProperty(weekKey)){
+            entriesByDate[weekKey]++;
+        }
+        else{
+            entriesByDate[weekKey] = 1
+        }
+    }
+
+    //create my stats object
+    const stats = {
+        totalEntries: allUserEntries.length,
+        wordCount: wordCount,
+        avgWordCount: allUserEntries.length > 0 ? Math.round(wordCount/allUserEntries.length) : 0,
+        curStreak: curStreak,
+        longestStreak: longestStreak,
+        entriesByDate:entriesByDate
+    }
+    
+    res.json(stats);
 }
