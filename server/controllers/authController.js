@@ -56,7 +56,7 @@ exports.loginUser = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "none"
-    }).status(200).json({email: user.email, username: user.username});
+    }).status(200).json({email: user.email, username: user.username, createdAt: user.createdAt});
 
 }
 
@@ -85,7 +85,8 @@ exports.getLoggedInUser = async (req,res) =>{
     res.status(200).json({
         loggedIn: true,
         email: user.email,
-        username: user.username
+        username: user.username,
+        createdAt: user.createdAt
     })
 
 }
