@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken")
+require('dotenv').config();
 //middle ware for authentication
 //This is to decouple the authentication methods that would verify or sign the token
-const tempSecret = "ha you read this loser :3 " //swap with environment variable
+const tempSecret = process.env.APP_SECRET //swap with environment variable
 
 function authMiddleware(req, res, next) {
         //this is where we verify the token
