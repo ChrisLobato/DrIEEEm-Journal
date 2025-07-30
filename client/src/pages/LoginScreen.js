@@ -2,7 +2,6 @@ import React, { useState, useContext } from "react";
 import {
   Avatar,
   Button,
-  CssBaseline,
   TextField,
   Link,
   Grid,
@@ -12,12 +11,9 @@ import {
   CircularProgress
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { AppContext } from '../AppContext.js';
 import { useNavigate } from "react-router-dom";
 
-
-const theme = createTheme();
 
 export default function SignIn({ onLogin }) {
   const [email, setEmail] = useState("");
@@ -50,7 +46,7 @@ export default function SignIn({ onLogin }) {
       }
 
       // If successful
-      setCurrentUser({username: data.username, email: data.email});
+      setCurrentUser({username: data.username, email: data.email, createdAt: data.createdAt});
       handleSwitchToHome();
     } catch (err) {
       setErrorMsg("Server error. Try again.");
@@ -65,9 +61,9 @@ export default function SignIn({ onLogin }) {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
+        
         <Box
           sx={{
             marginTop: 8,
@@ -137,6 +133,5 @@ export default function SignIn({ onLogin }) {
           </Box>
         </Box>
       </Container>
-    </ThemeProvider>
   );
 }
