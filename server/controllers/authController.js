@@ -5,9 +5,9 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+require('dotenv').config();
 
-
-const tempSecret = "ha you read this loser :3 " // to be moved into the backend
+const tempSecret = process.env.APP_SECRET // to be moved into the backend
 const saltRounds = 10; //How much randomness we sprinkle into the password
 
 //self note that  exports. already exists in a module and is given the value of module.exports before module is evaluated
@@ -56,7 +56,7 @@ exports.loginUser = async (req, res) => {
         httpOnly: true,
         secure: true,
         sameSite: "none"
-    }).status(200).json({email: user.email, username: user.username});
+    }).status(200).json({email: user.email, username: user.username, createdAt: user.createdAt});
 
 }
 
@@ -85,7 +85,8 @@ exports.getLoggedInUser = async (req,res) =>{
     res.status(200).json({
         loggedIn: true,
         email: user.email,
-        username: user.username
+        username: user.username,
+        createdAt: user.createdAt
     })
 
 }

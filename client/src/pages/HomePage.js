@@ -36,8 +36,8 @@ export default function HomePage() {
     //possible alternative is to decouple into 2 useEffects where second one depends on currentUser being updated
     const fetchData = async () =>{
       const userLoggedIn = await axios.get("http://localhost:8000/api/auth/loggedIn")
-      const {email, username} = userLoggedIn.data;
-      setCurrentUser({email, username});
+      const {email, username, createdAt} = userLoggedIn.data;
+      setCurrentUser({email, username, createdAt});
       fetchRecentEntries(email)
       fetchHighlightedDays(selectedDate,email); //gets the entries that display on the calendar so we can view and edit
     }
@@ -57,9 +57,10 @@ export default function HomePage() {
       }
       return null;
     });
-    if (selectedEntry)
+    if (selectedEntry){
       setEntryText(selectedEntry.text);
       setIsEditing(true);
+    }
       setModalOpen(true);
   }
   const handleModalClose = () => {

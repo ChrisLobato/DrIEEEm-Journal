@@ -23,6 +23,9 @@ export default function Sidebar(){
     function handleSwitchToStats(){
         navigate("/home/stats");
     }
+    function handleSwitchToAccountSettings(){
+        navigate("/home/settings")
+    }
 
     return(
         <Drawer variant="permanent" sx={{
@@ -33,17 +36,22 @@ export default function Sidebar(){
         <List>
             <ListItem >
             <ListItemButton onClick={handleSwitchToPlanner}>
-                <ListItemText primary="Planner ✅" />
+                <ListItemText primary="✅ Planner" />
             </ListItemButton>
             </ListItem>
             <ListItem>
             <ListItemButton onClick={handleSwitchToEntries}>
-                <ListItemText primary="Entries 📓" />
+                <ListItemText primary="📓 Entries" />
             </ListItemButton>
             </ListItem>
             <ListItem>
             <ListItemButton onClick={handleSwitchToStats}>
-                <ListItemText primary="Stats 🧠" />
+                <ListItemText primary="🧠 Stats" />
+            </ListItemButton>
+            </ListItem>
+            <ListItem>
+            <ListItemButton onClick={handleSwitchToAccountSettings}>
+                <ListItemText primary="⚙️ Account" />
             </ListItemButton>
             </ListItem>
         </List>

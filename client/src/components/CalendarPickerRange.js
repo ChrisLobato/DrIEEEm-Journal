@@ -2,7 +2,6 @@
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useState } from 'react';
 import dayjs from 'dayjs';
 
 //Date Range picker is a part of MUI Commercial license so this is a makeshift range selection
